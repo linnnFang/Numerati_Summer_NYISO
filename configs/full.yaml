@@ -1,0 +1,9 @@
+project_name: NYISO Reliability and Outage Research
+timezone: America/New_York
+start_date: 2024-01-01
+end_date: 2024-12-31
+raw_data_dir: data/raw
+interim_data_dir: data/interim
+processed_data_dir: data/processed
+output_dir: outputs
+random_seed: 1729
