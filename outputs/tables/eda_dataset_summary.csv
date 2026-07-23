@@ -1,0 +1,4 @@
+dataset,rows,columns,date_min,date_max,zones,duplicate_rows
+daily_analysis_panel,4763,17,2022-11-01 00:00:00-04:00,2024-01-07 00:00:00-05:00,11.0,0
+hourly_price_panel,114323,15,2022-11-01 00:00:00-04:00,2024-01-07 23:00:00-05:00,11.0,0
+p15_generation_outage_forecast,62,5,2026-07-17 00:00:00-04:00,2026-08-16 00:00:00-04:00,,0

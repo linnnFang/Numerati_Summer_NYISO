@@ -1,0 +1,2 @@
+status,target,observations,mean,variance,variance_to_mean,zero_share,target_validity,main_limitations
+BLOCKED,new_outage_count,,,,,,not available,"P-14B is latest-only and lacks zone; P-54 snapshots lack stable event identity and complete event timing. P-15 is MW, not count."

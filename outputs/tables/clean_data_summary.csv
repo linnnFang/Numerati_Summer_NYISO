@@ -1,0 +1,11 @@
+dataset,rows,date_min,date_max,zones,missingness,duplicate_count,validation_status,table,notes
+actual_load,1479962.0,2022-11-01 00:00:00-04:00,2024-01-31 23:55:00-05:00,11.0,"{'interval_start': 0, 'interval_end': 0, 'zone': 0, 'actual_load_mw': 33, 'source': 0}",0.0,PASS,actual_load,
+load_forecast,736200.0,2022-11-01 00:00:00-04:00,2024-01-05 23:00:00-05:00,12.0,"{'interval_start': 0, 'interval_end': 0, 'forecast_vintage_date': 0, 'zone': 0, 'forecast_load_mw': 0, 'source': 0}",0.0,PASS,load_forecast,
+price,164535.0,2022-11-01 00:00:00-04:00,2024-01-31 23:00:00-05:00,15.0,"{'interval_start': 0, 'interval_end': 0, 'market': 0, 'zone': 0, 'lbmp': 0, 'energy_component': 0, 'congestion_component': 0, 'loss_component': 0, 'source': 0}",0.0,PASS,da_lbmp,
+price,2018160.0,2022-11-01 00:05:00-04:00,2024-02-01 00:00:00-05:00,15.0,"{'interval_start': 0, 'interval_end': 0, 'market': 0, 'zone': 0, 'lbmp': 0, 'energy_component': 0, 'congestion_component': 0, 'loss_component': 0, 'source': 0}",0.0,PASS,rt_lbmp,
+weather,10416.0,2022-10-31 20:00:00-04:00,2024-01-08 18:00:00-05:00,,"{'interval_start': 0, 'location': 0, 'temperature': 0, 'precipitation': 0, 'wind_speed': 0, 'relative_humidity': 0, 'source': 0}",0.0,PASS,weather_albany,
+p15,62.0,2026-07-17 00:00:00-04:00,2026-08-16 00:00:00-04:00,,"{'interval_start': 0, 'interval_end': 0, 'retrieval_time': 0, 'generation_outage_mw': 0, 'source': 0}",0.0,PASS,p15_generation_outage_forecast,
+outage_latest,3250.0,,,0.0,"{'event_id': 0, 'start_time': 0, 'end_time': 0, 'facility_name': 0, 'planned_forced_status': 3250, 'affected_mw': 3250, 'zone': 3250, 'source': 0, 'historical_complete': 0}",0.0,PASS,outage_schedules_latest,
+outage_snapshot,,,,,,,SKIPPED,p54a_scheduled_snapshots,Raw P-54 retained by month; not loaded into the core panel and not treated as outage event count.
+outage_snapshot,,,,,,,SKIPPED,p54b_actual_snapshots,Raw P-54 retained by month; not loaded into the core panel and not treated as outage event count.
+outage_snapshot,,,,,,,SKIPPED,p54c_scheduled_snapshots,Raw P-54 retained by month; not loaded into the core panel and not treated as outage event count.

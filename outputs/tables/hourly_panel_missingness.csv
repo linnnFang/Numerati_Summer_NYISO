@@ -1,0 +1,16 @@
+column,missing_count,missing_share
+interval_start,0,0.0
+zone,0,0.0
+da_lbmp,0,0.0
+rt_lbmp,0,0.0
+dart,0,0.0
+actual_load_mw,0,0.0
+forecast_load_mw,792,0.006927739824882132
+forecast_vintage_date,792,0.006927739824882132
+load_forecast_error_mw,792,0.006927739824882132
+load_ramp,11,9.62186086789185e-05
+hour,0,0.0
+weekday,0,0.0
+month,0,0.0
+weekend,0,0.0
+season,0,0.0

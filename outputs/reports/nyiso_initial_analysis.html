@@ -1,0 +1,1904 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NYISO Initial Reliability Analysis</title>
+<style>
+body { font-family: Arial, sans-serif; max-width: 1100px; margin: 2rem auto;
+       color: #172033; line-height: 1.55; padding: 0 1rem; }
+h1, h2 { color: #123a63; }
+table { border-collapse: collapse; width: 100%; font-size: .82rem;
+         margin: 1rem 0; }
+th, td { border: 1px solid #d7dee8; padding: .4rem; text-align: left; }
+th { background: #edf3f8; }
+.blocked { border-left: 4px solid #b26a00; background: #fff6e5; padding: .7rem; }
+.note { background: #eef5ff; padding: .8rem; }
+img { max-width: 100%; } figure { margin: 1rem 0; }
+</style>
+</head>
+<body>
+<h1>NYISO Initial Reliability Analysis</h1>
+<p class="note">Development configuration: 2022-11-01 through
+2024-01-07, timezone America/New_York.</p>
+
+<h2>1. Project Objective</h2>
+<p>Assess whether a verified non-negative integer count of newly occurring
+outage events can support an overdispersed count model. The price extension
+defines DART as RT LBMP minus DA LBMP; it does not treat real-time price as a
+simple causal driver of outages.</p>
+
+<h2>2. Data Sources</h2>
+<table class="dataframe dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>dataset</th>
+      <th>source</th>
+      <th>status</th>
+      <th>rows</th>
+      <th>date_min</th>
+      <th>date_max</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>actual_load</td>
+      <td>NYISO MIS P-58B</td>
+      <td>READY</td>
+      <td>97427</td>
+      <td>2022-11-01 00:00:00</td>
+      <td>2022-11-30 23:55:00</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>NYISO MIS P-58B</td>
+      <td>READY</td>
+      <td>102487</td>
+      <td>2022-12-01 00:00:00</td>
+      <td>2022-12-31 23:55:00</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>NYISO MIS P-58B</td>
+      <td>READY</td>
+      <td>99902</td>
+      <td>2023-01-01 00:00:00</td>
+      <td>2023-01-31 23:55:00</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>NYISO MIS P-58B</td>
+      <td>READY</td>
+      <td>92103</td>
+      <td>2023-02-01 00:00:00</td>
+      <td>2023-02-28 23:55:00</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>NYISO MIS P-58B</td>
+      <td>READY</td>
+      <td>100881</td>
+      <td>2023-03-01 00:00:00</td>
+      <td>2023-03-31 23:55:00</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>NYISO MIS P-58B</td>
+      <td>READY</td>
+      <td>97790</td>
+      <td>2023-04-01 00:00:00</td>
+      <td>2023-04-30 23:55:00</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>NYISO MIS P-58B</td>
+      <td>READY</td>
+      <td>100760</td>
+      <td>2023-05-01 00:00:00</td>
+      <td>2023-05-31 23:55:00</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>NYISO MIS P-58B</td>
+      <td>READY</td>
+      <td>96063</td>
+      <td>2023-06-01 00:00:00</td>
+      <td>2023-06-30 23:55:00</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>NYISO MIS P-58B</td>
+      <td>READY</td>
+      <td>99935</td>
+      <td>2023-07-01 00:00:00</td>
+      <td>2023-07-31 23:55:00</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>NYISO MIS P-58B</td>
+      <td>READY</td>
+      <td>100155</td>
+      <td>2023-08-01 00:00:00</td>
+      <td>2023-08-31 23:55:00</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>NYISO MIS P-58B</td>
+      <td>READY</td>
+      <td>96690</td>
+      <td>2023-09-01 00:00:00</td>
+      <td>2023-09-30 23:55:00</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>NYISO MIS P-58B</td>
+      <td>READY</td>
+      <td>99759</td>
+      <td>2023-10-01 00:00:00</td>
+      <td>2023-10-31 23:55:00</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>NYISO MIS P-58B</td>
+      <td>READY</td>
+      <td>96844</td>
+      <td>2023-11-01 00:00:00</td>
+      <td>2023-11-30 23:55:00</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>NYISO MIS P-58B</td>
+      <td>READY</td>
+      <td>99143</td>
+      <td>2023-12-01 00:00:00</td>
+      <td>2023-12-31 23:55:00</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>NYISO MIS P-58B</td>
+      <td>READY</td>
+      <td>100023</td>
+      <td>2024-01-01 00:00:00</td>
+      <td>2024-01-31 23:55:00</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NYISO MIS P-7</td>
+      <td>READY</td>
+      <td>4326</td>
+      <td>2022-11-01 00:00:00</td>
+      <td>2022-12-05 23:00:00</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NYISO MIS P-7</td>
+      <td>READY</td>
+      <td>4464</td>
+      <td>2022-12-01 00:00:00</td>
+      <td>2023-01-05 23:00:00</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NYISO MIS P-7</td>
+      <td>READY</td>
+      <td>4464</td>
+      <td>2023-01-01 00:00:00</td>
+      <td>2023-02-05 23:00:00</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NYISO MIS P-7</td>
+      <td>READY</td>
+      <td>4032</td>
+      <td>2023-02-01 00:00:00</td>
+      <td>2023-03-05 23:00:00</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NYISO MIS P-7</td>
+      <td>READY</td>
+      <td>4458</td>
+      <td>2023-03-01 00:00:00</td>
+      <td>2023-04-05 23:00:00</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NYISO MIS P-7</td>
+      <td>READY</td>
+      <td>4320</td>
+      <td>2023-04-01 00:00:00</td>
+      <td>2023-05-05 23:00:00</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NYISO MIS P-7</td>
+      <td>READY</td>
+      <td>4464</td>
+      <td>2023-05-01 00:00:00</td>
+      <td>2023-06-05 23:00:00</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NYISO MIS P-7</td>
+      <td>READY</td>
+      <td>4320</td>
+      <td>2023-06-01 00:00:00</td>
+      <td>2023-07-05 23:00:00</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NYISO MIS P-7</td>
+      <td>READY</td>
+      <td>4464</td>
+      <td>2023-07-01 00:00:00</td>
+      <td>2023-08-05 23:00:00</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NYISO MIS P-7</td>
+      <td>READY</td>
+      <td>4464</td>
+      <td>2023-08-01 00:00:00</td>
+      <td>2023-09-05 23:00:00</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NYISO MIS P-7</td>
+      <td>READY</td>
+      <td>4320</td>
+      <td>2023-09-01 00:00:00</td>
+      <td>2023-10-05 23:00:00</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NYISO MIS P-7</td>
+      <td>READY</td>
+      <td>4465</td>
+      <td>2023-10-01 00:00:00</td>
+      <td>2023-11-05 23:00:00</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NYISO MIS P-7</td>
+      <td>READY</td>
+      <td>4325</td>
+      <td>2023-11-01 00:00:00</td>
+      <td>2023-12-05 23:00:00</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NYISO MIS P-7</td>
+      <td>READY</td>
+      <td>4464</td>
+      <td>2023-12-01 00:00:00</td>
+      <td>2024-01-05 23:00:00</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NYISO MIS P-7</td>
+      <td>READY</td>
+      <td>4464</td>
+      <td>2024-01-01 00:00:00</td>
+      <td>2024-02-05 23:00:00</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>NYISO MIS P-2A</td>
+      <td>READY</td>
+      <td>10815</td>
+      <td>2022-11-01 00:00:00</td>
+      <td>2022-11-30 23:00:00</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>NYISO MIS P-2A</td>
+      <td>READY</td>
+      <td>11160</td>
+      <td>2022-12-01 00:00:00</td>
+      <td>2022-12-31 23:00:00</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>NYISO MIS P-2A</td>
+      <td>READY</td>
+      <td>11160</td>
+      <td>2023-01-01 00:00:00</td>
+      <td>2023-01-31 23:00:00</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>NYISO MIS P-2A</td>
+      <td>READY</td>
+      <td>10080</td>
+      <td>2023-02-01 00:00:00</td>
+      <td>2023-02-28 23:00:00</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>NYISO MIS P-2A</td>
+      <td>READY</td>
+      <td>11145</td>
+      <td>2023-03-01 00:00:00</td>
+      <td>2023-03-31 23:00:00</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>NYISO MIS P-2A</td>
+      <td>READY</td>
+      <td>10800</td>
+      <td>2023-04-01 00:00:00</td>
+      <td>2023-04-30 23:00:00</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>NYISO MIS P-2A</td>
+      <td>READY</td>
+      <td>11160</td>
+      <td>2023-05-01 00:00:00</td>
+      <td>2023-05-31 23:00:00</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>NYISO MIS P-2A</td>
+      <td>READY</td>
+      <td>10800</td>
+      <td>2023-06-01 00:00:00</td>
+      <td>2023-06-30 23:00:00</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>NYISO MIS P-2A</td>
+      <td>READY</td>
+      <td>11160</td>
+      <td>2023-07-01 00:00:00</td>
+      <td>2023-07-31 23:00:00</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>NYISO MIS P-2A</td>
+      <td>READY</td>
+      <td>11160</td>
+      <td>2023-08-01 00:00:00</td>
+      <td>2023-08-31 23:00:00</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>NYISO MIS P-2A</td>
+      <td>READY</td>
+      <td>10800</td>
+      <td>2023-09-01 00:00:00</td>
+      <td>2023-09-30 23:00:00</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>NYISO MIS P-2A</td>
+      <td>READY</td>
+      <td>11160</td>
+      <td>2023-10-01 00:00:00</td>
+      <td>2023-10-31 23:00:00</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>NYISO MIS P-2A</td>
+      <td>READY</td>
+      <td>10815</td>
+      <td>2023-11-01 00:00:00</td>
+      <td>2023-11-30 23:00:00</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>NYISO MIS P-2A</td>
+      <td>READY</td>
+      <td>11160</td>
+      <td>2023-12-01 00:00:00</td>
+      <td>2023-12-31 23:00:00</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>NYISO MIS P-2A</td>
+      <td>READY</td>
+      <td>11160</td>
+      <td>2024-01-01 00:00:00</td>
+      <td>2024-01-31 23:00:00</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>NYISO MIS P-24A</td>
+      <td>READY</td>
+      <td>132855</td>
+      <td>2022-11-01 00:05:00</td>
+      <td>2022-12-01 00:00:00</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>NYISO MIS P-24A</td>
+      <td>READY</td>
+      <td>139755</td>
+      <td>2022-12-01 00:05:00</td>
+      <td>2023-01-01 00:00:00</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>NYISO MIS P-24A</td>
+      <td>READY</td>
+      <td>136230</td>
+      <td>2023-01-01 00:05:00</td>
+      <td>2023-02-01 00:00:00</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>NYISO MIS P-24A</td>
+      <td>READY</td>
+      <td>125595</td>
+      <td>2023-02-01 00:05:00</td>
+      <td>2023-03-01 00:00:00</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>NYISO MIS P-24A</td>
+      <td>READY</td>
+      <td>137565</td>
+      <td>2023-03-01 00:05:00</td>
+      <td>2023-04-01 00:00:00</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>NYISO MIS P-24A</td>
+      <td>READY</td>
+      <td>133350</td>
+      <td>2023-04-01 00:03:59</td>
+      <td>2023-05-01 00:00:00</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>NYISO MIS P-24A</td>
+      <td>READY</td>
+      <td>137400</td>
+      <td>2023-05-01 00:05:00</td>
+      <td>2023-06-01 00:00:00</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>NYISO MIS P-24A</td>
+      <td>READY</td>
+      <td>130995</td>
+      <td>2023-06-01 00:05:00</td>
+      <td>2023-07-01 00:00:00</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>NYISO MIS P-24A</td>
+      <td>READY</td>
+      <td>136275</td>
+      <td>2023-07-01 00:05:00</td>
+      <td>2023-08-01 00:00:00</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>NYISO MIS P-24A</td>
+      <td>READY</td>
+      <td>136605</td>
+      <td>2023-08-01 00:05:00</td>
+      <td>2023-09-01 00:00:00</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>NYISO MIS P-24A</td>
+      <td>READY</td>
+      <td>131850</td>
+      <td>2023-09-01 00:05:00</td>
+      <td>2023-10-01 00:00:00</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>NYISO MIS P-24A</td>
+      <td>READY</td>
+      <td>136035</td>
+      <td>2023-10-01 00:05:00</td>
+      <td>2023-11-01 00:00:00</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>NYISO MIS P-24A</td>
+      <td>READY</td>
+      <td>132060</td>
+      <td>2023-11-01 00:05:00</td>
+      <td>2023-12-01 00:00:00</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>NYISO MIS P-24A</td>
+      <td>READY</td>
+      <td>135195</td>
+      <td>2023-12-01 00:02:34</td>
+      <td>2024-01-01 00:00:00</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>NYISO MIS P-24A</td>
+      <td>READY</td>
+      <td>136395</td>
+      <td>2024-01-01 00:05:00</td>
+      <td>2024-02-01 00:00:00</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54A</td>
+      <td>READY</td>
+      <td>1777381</td>
+      <td>2022-11-01 00:00:00</td>
+      <td>2022-11-30 23:55:00</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54A</td>
+      <td>READY</td>
+      <td>1519419</td>
+      <td>2022-12-01 00:00:00</td>
+      <td>2022-12-31 23:55:00</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54A</td>
+      <td>READY</td>
+      <td>1514564</td>
+      <td>2023-01-01 00:00:00</td>
+      <td>2023-01-31 23:55:00</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54A</td>
+      <td>READY</td>
+      <td>1343978</td>
+      <td>2023-02-01 00:00:00</td>
+      <td>2023-02-28 23:55:00</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54A</td>
+      <td>READY</td>
+      <td>1779687</td>
+      <td>2023-03-01 00:00:00</td>
+      <td>2023-03-31 23:55:00</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54A</td>
+      <td>READY</td>
+      <td>1819931</td>
+      <td>2023-04-01 00:00:00</td>
+      <td>2023-04-30 23:55:00</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54A</td>
+      <td>READY</td>
+      <td>1756084</td>
+      <td>2023-05-01 00:00:00</td>
+      <td>2023-05-31 23:55:00</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54A</td>
+      <td>READY</td>
+      <td>1347885</td>
+      <td>2023-06-01 00:00:00</td>
+      <td>2023-06-30 23:55:00</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54A</td>
+      <td>READY</td>
+      <td>1121806</td>
+      <td>2023-07-01 00:00:00</td>
+      <td>2023-07-31 23:55:00</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54A</td>
+      <td>READY</td>
+      <td>1215855</td>
+      <td>2023-08-01 00:00:00</td>
+      <td>2023-08-31 23:55:00</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54A</td>
+      <td>READY</td>
+      <td>1423581</td>
+      <td>2023-09-01 00:00:00</td>
+      <td>2023-09-30 23:55:00</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54A</td>
+      <td>READY</td>
+      <td>1817820</td>
+      <td>2023-10-01 00:00:00</td>
+      <td>2023-10-31 23:55:00</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54A</td>
+      <td>READY</td>
+      <td>1701044</td>
+      <td>2023-11-01 00:00:00</td>
+      <td>2023-11-30 23:55:00</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54A</td>
+      <td>READY</td>
+      <td>1424157</td>
+      <td>2023-12-01 00:00:00</td>
+      <td>2023-12-31 23:55:00</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54A</td>
+      <td>READY</td>
+      <td>1385073</td>
+      <td>2024-01-01 00:00:00</td>
+      <td>2024-01-31 23:55:00</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NYISO MIS P-54B</td>
+      <td>READY</td>
+      <td>1601655</td>
+      <td>2022-11-01 00:02:00</td>
+      <td>2022-11-30 23:57:00</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NYISO MIS P-54B</td>
+      <td>READY</td>
+      <td>1455709</td>
+      <td>2022-12-01 00:02:00</td>
+      <td>2022-12-31 23:57:00</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NYISO MIS P-54B</td>
+      <td>READY</td>
+      <td>1379450</td>
+      <td>2023-01-01 00:07:00</td>
+      <td>2023-01-31 23:57:00</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NYISO MIS P-54B</td>
+      <td>READY</td>
+      <td>1250045</td>
+      <td>2023-02-01 00:02:00</td>
+      <td>2023-02-28 23:57:00</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NYISO MIS P-54B</td>
+      <td>READY</td>
+      <td>1644696</td>
+      <td>2023-03-01 00:02:00</td>
+      <td>2023-03-31 23:57:00</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NYISO MIS P-54B</td>
+      <td>READY</td>
+      <td>1696210</td>
+      <td>2023-04-01 00:02:00</td>
+      <td>2023-04-30 23:57:00</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NYISO MIS P-54B</td>
+      <td>READY</td>
+      <td>1624581</td>
+      <td>2023-05-01 00:02:00</td>
+      <td>2023-05-31 23:57:00</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NYISO MIS P-54B</td>
+      <td>READY</td>
+      <td>1266029</td>
+      <td>2023-06-01 00:02:00</td>
+      <td>2023-06-30 23:57:00</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NYISO MIS P-54B</td>
+      <td>READY</td>
+      <td>1056901</td>
+      <td>2023-07-01 00:02:00</td>
+      <td>2023-07-31 23:57:00</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NYISO MIS P-54B</td>
+      <td>READY</td>
+      <td>1197202</td>
+      <td>2023-08-01 00:02:01</td>
+      <td>2023-08-31 23:57:00</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NYISO MIS P-54B</td>
+      <td>READY</td>
+      <td>1267665</td>
+      <td>2023-09-01 00:02:00</td>
+      <td>2023-09-30 23:57:00</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NYISO MIS P-54B</td>
+      <td>READY</td>
+      <td>1632948</td>
+      <td>2023-10-01 00:02:00</td>
+      <td>2023-10-31 23:57:00</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NYISO MIS P-54B</td>
+      <td>READY</td>
+      <td>1607586</td>
+      <td>2023-11-01 00:02:00</td>
+      <td>2023-11-30 23:57:00</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NYISO MIS P-54B</td>
+      <td>READY</td>
+      <td>1339993</td>
+      <td>2023-12-01 00:02:00</td>
+      <td>2023-12-31 23:57:00</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NYISO MIS P-54B</td>
+      <td>READY</td>
+      <td>1273957</td>
+      <td>2024-01-01 00:02:00</td>
+      <td>2024-01-31 23:57:00</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54C</td>
+      <td>READY</td>
+      <td>5280</td>
+      <td>2022-11-01 00:00:00</td>
+      <td>2022-11-30 00:00:00</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54C</td>
+      <td>READY</td>
+      <td>4473</td>
+      <td>2022-12-01 00:00:00</td>
+      <td>2022-12-31 00:00:00</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54C</td>
+      <td>READY</td>
+      <td>4451</td>
+      <td>2023-01-01 00:00:00</td>
+      <td>2023-01-31 00:00:00</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54C</td>
+      <td>READY</td>
+      <td>3780</td>
+      <td>2023-02-01 00:00:00</td>
+      <td>2023-02-28 00:00:00</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54C</td>
+      <td>READY</td>
+      <td>5214</td>
+      <td>2023-03-01 00:00:00</td>
+      <td>2023-03-31 00:00:00</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54C</td>
+      <td>READY</td>
+      <td>5344</td>
+      <td>2023-04-01 00:00:00</td>
+      <td>2023-04-30 00:00:00</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54C</td>
+      <td>READY</td>
+      <td>5235</td>
+      <td>2023-05-01 00:00:00</td>
+      <td>2023-05-31 00:00:00</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54C</td>
+      <td>READY</td>
+      <td>3856</td>
+      <td>2023-06-01 00:00:00</td>
+      <td>2023-06-30 00:00:00</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54C</td>
+      <td>READY</td>
+      <td>3066</td>
+      <td>2023-07-01 00:00:00</td>
+      <td>2023-07-31 00:00:00</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54C</td>
+      <td>READY</td>
+      <td>3338</td>
+      <td>2023-08-01 00:00:00</td>
+      <td>2023-08-31 00:00:00</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54C</td>
+      <td>READY</td>
+      <td>4079</td>
+      <td>2023-09-01 00:00:00</td>
+      <td>2023-09-30 00:00:00</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54C</td>
+      <td>READY</td>
+      <td>5246</td>
+      <td>2023-10-01 00:00:00</td>
+      <td>2023-10-31 00:00:00</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54C</td>
+      <td>READY</td>
+      <td>4833</td>
+      <td>2023-11-01 00:00:00</td>
+      <td>2023-11-30 00:00:00</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54C</td>
+      <td>READY</td>
+      <td>3800</td>
+      <td>2023-12-01 00:00:00</td>
+      <td>2023-12-31 00:00:00</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NYISO MIS P-54C</td>
+      <td>READY</td>
+      <td>3838</td>
+      <td>2024-01-01 00:00:00</td>
+      <td>2024-01-31 00:00:00</td>
+    </tr>
+    <tr>
+      <td>outage_schedules_latest</td>
+      <td>NYISO MIS P-14B</td>
+      <td>LATEST_ONLY</td>
+      <td>3250</td>
+      <td>2014-06-16 07:00:00</td>
+      <td>2035-12-31 23:59:00</td>
+    </tr>
+    <tr>
+      <td>p15_generation_outage_forecast</td>
+      <td>NYISO MIS P-15</td>
+      <td>LATEST_ONLY</td>
+      <td>31</td>
+      <td>2026-07-17 00:00:00</td>
+      <td>2026-08-16 00:00:00</td>
+    </tr>
+    <tr>
+      <td>weather_albany_dev_sample</td>
+      <td>Open-Meteo Historical Weather API</td>
+      <td>READY</td>
+      <td>10416</td>
+      <td>2022-11-01 00:00:00</td>
+      <td>2024-01-08 23:00:00</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>3. Data Coverage and Quality</h2>
+<table class="dataframe dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>dataset</th>
+      <th>unique_zones</th>
+      <th>duplicates</th>
+      <th>blocker</th>
+      <th>notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>actual_load</td>
+      <td>11.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>11.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>11.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>11.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>11.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>11.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>11.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>11.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>11.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>11.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>11.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>11.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>11.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>11.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>actual_load</td>
+      <td>11.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>Reused existing raw file; no archive download performed.</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NaN</td>
+      <td>6</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NaN</td>
+      <td>1</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NaN</td>
+      <td>5</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>Reused existing raw file; no archive download performed.</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>Reused existing raw file; no archive download performed.</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>Reused existing raw file; no archive download performed.</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>6358</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>6874</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>3691</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>6802</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>4878</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>6395</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>5517</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>1604</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>1652</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>2593</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>2345</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>3094</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>5084</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>1123</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>2436</td>
+      <td>NaN</td>
+      <td>Reused existing raw file; no archive download performed.</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NaN</td>
+      <td>13</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NaN</td>
+      <td>401</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NaN</td>
+      <td>1</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NaN</td>
+      <td>1</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>rt_actual_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>Reused existing raw file; no archive download performed.</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>da_scheduled_transmission_outages</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>Reused existing raw file; no archive download performed.</td>
+    </tr>
+    <tr>
+      <td>outage_schedules_latest</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>Latest-only snapshot; NYISO P-14B index exposes no historical archive, so it does not provide the configured historical window.</td>
+    </tr>
+    <tr>
+      <td>p15_generation_outage_forecast</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>Current/future aggregate daily forecast MW snapshot; not outage-event data and not an event count.</td>
+    </tr>
+    <tr>
+      <td>weather_albany_dev_sample</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>Single Albany coordinate for development only; timestamps requested in UTC with a one-day end buffer for explicit America/New_York DST conversion and local-date filtering.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>4. Cleaning and Standardization</h2>
+<p>Observed timestamps were localized to America/New_York. Ambiguous and
+nonexistent naive DST clock times raise errors rather than being guessed.</p>
+<table class="dataframe dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>table</th>
+      <th>rows</th>
+      <th>date_min</th>
+      <th>date_max</th>
+      <th>zones</th>
+      <th>duplicate_count</th>
+      <th>validation_status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>actual_load</td>
+      <td>1479962.0</td>
+      <td>2022-11-01 00:00:00-04:00</td>
+      <td>2024-01-31 23:55:00-05:00</td>
+      <td>11.0</td>
+      <td>0.0</td>
+      <td>PASS</td>
+    </tr>
+    <tr>
+      <td>load_forecast</td>
+      <td>736200.0</td>
+      <td>2022-11-01 00:00:00-04:00</td>
+      <td>2024-01-05 23:00:00-05:00</td>
+      <td>12.0</td>
+      <td>0.0</td>
+      <td>PASS</td>
+    </tr>
+    <tr>
+      <td>da_lbmp</td>
+      <td>164535.0</td>
+      <td>2022-11-01 00:00:00-04:00</td>
+      <td>2024-01-31 23:00:00-05:00</td>
+      <td>15.0</td>
+      <td>0.0</td>
+      <td>PASS</td>
+    </tr>
+    <tr>
+      <td>rt_lbmp</td>
+      <td>2018160.0</td>
+      <td>2022-11-01 00:05:00-04:00</td>
+      <td>2024-02-01 00:00:00-05:00</td>
+      <td>15.0</td>
+      <td>0.0</td>
+      <td>PASS</td>
+    </tr>
+    <tr>
+      <td>weather_albany</td>
+      <td>10416.0</td>
+      <td>2022-10-31 20:00:00-04:00</td>
+      <td>2024-01-08 18:00:00-05:00</td>
+      <td>NaN</td>
+      <td>0.0</td>
+      <td>PASS</td>
+    </tr>
+    <tr>
+      <td>p15_generation_outage_forecast</td>
+      <td>62.0</td>
+      <td>2026-07-17 00:00:00-04:00</td>
+      <td>2026-08-16 00:00:00-04:00</td>
+      <td>NaN</td>
+      <td>0.0</td>
+      <td>PASS</td>
+    </tr>
+    <tr>
+      <td>outage_schedules_latest</td>
+      <td>3250.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>PASS</td>
+    </tr>
+    <tr>
+      <td>p54a_scheduled_snapshots</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SKIPPED</td>
+    </tr>
+    <tr>
+      <td>p54b_actual_snapshots</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SKIPPED</td>
+    </tr>
+    <tr>
+      <td>p54c_scheduled_snapshots</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>SKIPPED</td>
+    </tr>
+  </tbody>
+</table>
+<table class="dataframe dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>panel</th>
+      <th>rows</th>
+      <th>date_min</th>
+      <th>date_max</th>
+      <th>grain</th>
+      <th>zones</th>
+      <th>merge_match_rate</th>
+      <th>target_status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>daily_analysis_panel</td>
+      <td>4763</td>
+      <td>2022-11-01 00:00:00-04:00</td>
+      <td>2024-01-07 00:00:00-05:00</td>
+      <td>zone-local_day</td>
+      <td>11</td>
+      <td>0.993072</td>
+      <td>BLOCKED</td>
+    </tr>
+    <tr>
+      <td>hourly_price_panel</td>
+      <td>114323</td>
+      <td>2022-11-01 00:00:00-04:00</td>
+      <td>2024-01-07 23:00:00-05:00</td>
+      <td>zone-hour</td>
+      <td>11</td>
+      <td>1.000000</td>
+      <td>PRICE_EXTENSION_ONLY</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>5. Outage Target Feasibility</h2>
+<p class="blocked"><strong>BLOCKED.</strong> P-15 is forecasted generation
+outage MW, not event count. P-14B is latest-only and lacks zone; inspected P-54
+snapshots do not provide stable event identity plus complete timing. A verified
+historical new-outage count cannot currently be constructed.</p>
+<table class="dataframe dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>status</th>
+      <th>target</th>
+      <th>observations</th>
+      <th>mean</th>
+      <th>variance</th>
+      <th>variance_to_mean</th>
+      <th>zero_share</th>
+      <th>target_validity</th>
+      <th>main_limitations</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>BLOCKED</td>
+      <td>new_outage_count</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>not available</td>
+      <td>P-14B is latest-only and lacks zone; P-54 snapshots lack stable event identity and complete event timing. P-15 is MW, not count.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>6. EDA Results</h2>
+<figure><img src="../figures/load_timeseries.png" alt="Development-sample load"><figcaption>Development-sample load</figcaption></figure>
+<figure><img src="../figures/p15_generation_outage_mw.png" alt="P-15 current forecast MW snapshot — not event count"><figcaption>P-15 current forecast MW snapshot — not event count</figcaption></figure>
+
+<h2>7. Overdispersion Results</h2>
+<p class="blocked">NOT AVAILABLE. Mean, variance, variance-to-mean ratio, and
+zero share require a valid outage count target. No substitute target was used.</p>
+
+<h2>8. Initial Poisson vs Negative Binomial Comparison</h2>
+<table class="dataframe dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>model_status</th>
+      <th>reason</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>BLOCKED</td>
+      <td>No verified historical outage event count. P-15 MW is not a count.</td>
+    </tr>
+  </tbody>
+</table>
+<p>IRR would be interpreted as exp(beta), the multiplicative change in expected
+count per one-unit covariate increase, conditional on the model. No IRRs are
+reported because the count model is blocked.</p>
+
+<h2>9. Limitations</h2>
+<ul>
+<li>Forced versus scheduled status is not consistently verified across sources.</li>
+<li>Facility-to-zone mapping is unavailable in the inspected outage files.</li>
+<li>P-14B is a current snapshot, not historical vintages.</li>
+<li>The weather sample is one Albany coordinate, not zone-level exposure.</li>
+<li>Market rules and reporting schemas may change over time.</li>
+<li>Correlated outages are not fully handled by a simple Negative Binomial model.</li>
+<li>RT LBMP and DART have reverse-causality and simultaneity risks.</li>
+</ul>
+
+<h2>10. Next Steps</h2>
+<p>Seek a versioned event-level outage source with stable event ID, start time,
+forced/scheduled definition, affected MW, and effective facility-to-zone mapping.
+Until then, retain the valid load, price, weather, and outage-MW pipelines while
+keeping the primary count-model branch blocked.</p>
+</body>
+</html>

@@ -8,10 +8,7 @@ __pycache__/
 .env
 .DS_Store
 
-# Ignore real data and generated results, but keep the directory structure.
+# Ignore real data, but keep the directory structure.
 data/**
 !data/**/
 !data/**/.gitkeep
-outputs/**
-!outputs/**/
-!outputs/**/.gitkeep

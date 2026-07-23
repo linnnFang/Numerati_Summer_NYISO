@@ -1,0 +1,14 @@
+metric,value
+daily rows,4763
+hourly rows,114323
+zones,11
+date_start,2022-11-01
+date_end,2024-01-07
+daily_mean_load MW (mean),1527.6
+daily_max_load MW (max),10429.6
+temperature C (min / mean / max),-15.7 / 9.7 / 26.2
+DA LBMP $/MWh (mean),36.74
+RT LBMP $/MWh (mean),37.15
+DART $/MWh (mean / std),0.41 / 60.48
+DART |x|>50 share %,3.51
+DA/RT hourly match rate %,100.0
